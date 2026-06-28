@@ -4,6 +4,16 @@
   "description": "Autoscroll for reading manga, comics, and articels",
   "manifest_version": 3,
 
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "malash@blly.id",
+      "data_collection_permissions": {
+        "required": ["none"]
+      },
+      "strict_min_version": "109.0"
+    }
+  },
+
   "icons": {
     "16": "/android-chrome-192x192.png",
     "32": "/android-chrome-192x192.png",
