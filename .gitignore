@@ -24,4 +24,4 @@ out
 *.sln
 *.sw?
 # specs (local design docs, not committed)
-docs/superpowers/specs/
+docs/
