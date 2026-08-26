@@ -11,4 +11,9 @@ export default defineConfig({
       manifest: "public/manifest.json",
     }),
   ],
-});
+  // @ts-ignore - vitest types augment vite config
+  test: {
+    environment: "jsdom",
+    include: ["tests/**/*.test.ts"],
+  },
+} as any);
