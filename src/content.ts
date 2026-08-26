@@ -1,4 +1,9 @@
 import browser from "webextension-polyfill";
+import {
+  DEFAULT_SHORTCUT,
+  eventToString,
+  isPlatformEquivalent,
+} from "./content/shortcut";
 
 let scrollInterval: number | null = null;
 let resumeTimeoutId: number | null = null;
@@ -8,6 +13,7 @@ let lastMousePosition = { x: 0, y: 0 };
 let isGloballyActive = false;
 let currentScrollSpeed = 5;
 let pauseOnMouseMoveEnabled = true;
+let customShortcut: string = DEFAULT_SHORTCUT;
 
 // --- Runtime state ---
 let isPausedByMouse = false;
@@ -79,6 +85,30 @@ function stopScrolling() {
   isPausedByMouse = false;
 }
 
+// --- Custom Shortcut Handler ---
+
+const handleCustomShortcut = (e: KeyboardEvent) => {
+  if (e.repeat) return;
+  const target = e.target as HTMLElement | null;
+  if (
+    target &&
+    (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+      (target as HTMLElement).isContentEditable)
+  ) {
+    return;
+  }
+  if (["Control", "Alt", "Shift", "Meta"].includes(e.key)) return;
+
+  const str = eventToString(e);
+  if (str !== customShortcut && !isPlatformEquivalent(str, customShortcut)) {
+    return;
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+  browser.runtime.sendMessage({ action: "toggle-request" });
+};
+
 // --- Event Handlers ---
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -134,13 +164,24 @@ async function initializeState() {
       "isActive",
       "scrollSpeed",
       "pauseOnMouseMove",
+      "customShortcut",
     ]);
 
-    isGloballyActive = state.isActive as boolean ?? false;
-    currentScrollSpeed = state.scrollSpeed as number ?? 5;
-    pauseOnMouseMoveEnabled = state.pauseOnMouseMove as boolean ?? true;
+    isGloballyActive = (state.isActive as boolean) ?? false;
+    currentScrollSpeed = (state.scrollSpeed as number) ?? 5;
+    pauseOnMouseMoveEnabled = (state.pauseOnMouseMove as boolean) ?? true;
+    customShortcut = (state.customShortcut as string) ?? DEFAULT_SHORTCUT;
 
     updateMouseListener();
+    window.addEventListener("keydown", handleCustomShortcut, true);
+
+    // Listen for customShortcut updates (isActive already handled via runtime message, but keep cache fresh)
+    browser.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local") return;
+      if (changes.customShortcut) {
+        customShortcut = (changes.customShortcut.newValue as string) ?? DEFAULT_SHORTCUT;
+      }
+    });
 
     if (isGloballyActive) {
       startScrolling(currentScrollSpeed);
