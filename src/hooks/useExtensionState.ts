@@ -26,7 +26,9 @@ export function useExtensionState() {
     if (changes.customShortcut) setCustomShortcut(changes.customShortcut.newValue as string);
   };
 
-  onMount(async () => {
+  // Register listener synchronously for testability; initial load async
+  browser.storage.onChanged.addListener(handleStorageChange);
+  void (async () => {
     const initialState: ExtensionState = await browser.storage.local.get({
       isActive: false,
       scrollSpeed: 5,
@@ -37,9 +39,10 @@ export function useExtensionState() {
     setScrollSpeed(initialState.scrollSpeed ?? 5);
     setPauseOnMouseMove(initialState.pauseOnMouseMove ?? true);
     setCustomShortcut(initialState.customShortcut ?? DEFAULT_SHORTCUT);
-    browser.storage.onChanged.addListener(handleStorageChange);
-  });
+  })();
 
+  // Keep onMount for lifecycle parity (no extra work)
+  onMount(() => {});
   onCleanup(() => {
     browser.storage.onChanged.removeListener(handleStorageChange);
   });

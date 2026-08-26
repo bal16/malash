@@ -41,18 +41,20 @@ export function useCustomShortcutRecorder(
     setPendingError(null);
   };
 
-  onMount(() => {
-    window.addEventListener("keydown", handleRecordingKeyDown, true);
-    window.addEventListener("blur", handleBlurAutosave);
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") handleBlurAutosave();
-    });
-    window.addEventListener("beforeunload", handleBlurAutosave);
-  });
+  // Register synchronously for testability
+  window.addEventListener("keydown", handleRecordingKeyDown, true);
+  window.addEventListener("blur", handleBlurAutosave);
+  const visHandler = () => {
+    if (document.visibilityState === "hidden") void handleBlurAutosave();
+  };
+  document.addEventListener("visibilitychange", visHandler);
+  window.addEventListener("beforeunload", handleBlurAutosave);
 
+  onMount(() => {});
   onCleanup(() => {
     window.removeEventListener("keydown", handleRecordingKeyDown, true);
     window.removeEventListener("blur", handleBlurAutosave);
+    document.removeEventListener("visibilitychange", visHandler);
     window.removeEventListener("beforeunload", handleBlurAutosave);
   });
 

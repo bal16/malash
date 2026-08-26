@@ -8,7 +8,7 @@ export function eventToString(e: KeyboardEvent): string {
   if (e.altKey) mods.push("Alt");
   if (e.shiftKey) mods.push("Shift");
   if (e.metaKey) mods.push("Meta");
-  mods.sort((a,b) => MOD_ORDER.indexOf(a as any) - MOD_ORDER.indexOf(b as any));
+  mods.sort((a,b) => MOD_ORDER.indexOf(a as typeof MOD_ORDER[number]) - MOD_ORDER.indexOf(b as typeof MOD_ORDER[number]));
   let key = e.key;
   if (key.length === 1) key = key.toUpperCase();
   // Normalize Space, keep F/Arrow names as-is

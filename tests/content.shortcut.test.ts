@@ -16,7 +16,7 @@ vi.mock("webextension-polyfill", () => ({
 import { eventToString, isPlatformEquivalent } from "../src/content/shortcut";
 
 function mkKey(over: Partial<KeyboardEvent> & { key: string; ctrlKey?: boolean; altKey?: boolean; shiftKey?: boolean; metaKey?: boolean; repeat?: boolean; targetTag?: string }) {
-  const el = over.targetTag ? { tagName: over.targetTag, isContentEditable: false } as any : null;
+  const el = over.targetTag ? ({ tagName: over.targetTag, isContentEditable: false } as unknown as HTMLElement) : null;
   return {
     key: over.key,
     ctrlKey: !!over.ctrlKey,
@@ -27,12 +27,12 @@ function mkKey(over: Partial<KeyboardEvent> & { key: string; ctrlKey?: boolean; 
     target: el,
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
-  } as unknown as KeyboardEvent & { target: any };
+  } as unknown as KeyboardEvent & { target: HTMLElement | null };
 }
 
 describe("content handleCustomShortcut guard logic", () => {
   it("eventToString formats Ctrl+Alt+Shift+S", () => {
-    const e = { key: "s", ctrlKey: true, altKey: true, shiftKey: true, metaKey: false } as any;
+    const e = { key: "s", ctrlKey: true, altKey: true, shiftKey: true, metaKey: false } as unknown as KeyboardEvent;
     expect(eventToString(e)).toBe("Ctrl+Alt+Shift+S");
   });
 
@@ -48,17 +48,17 @@ describe("content handleCustomShortcut guard logic", () => {
 
   it("should trigger toggle-request only for valid combo", async () => {
     const browser = (await import("webextension-polyfill")).default;
-    const send = browser.runtime.sendMessage as any;
+    const send = vi.mocked(browser.runtime.sendMessage);
     send.mockClear();
     // Simulate the guard logic inline (content.ts will use same)
     const customShortcut = "Ctrl+Alt+Shift+S";
     const e = mkKey({ key: "s", ctrlKey: true, altKey: true, shiftKey: true });
-    const str = eventToString(e as any);
+    const str = eventToString(e as unknown as KeyboardEvent);
     const matches = str === customShortcut || isPlatformEquivalent(str, customShortcut);
     if (!e.repeat && matches) {
       e.preventDefault();
       e.stopPropagation();
-      await (browser.runtime.sendMessage as any)({ action: "toggle-request" });
+      await vi.mocked(browser.runtime.sendMessage)({ action: "toggle-request" });
     }
     expect(matches).toBe(true);
     expect(send).toHaveBeenCalledWith({ action: "toggle-request" });
@@ -66,11 +66,11 @@ describe("content handleCustomShortcut guard logic", () => {
 
   it("should not trigger when focus in INPUT", async () => {
     const browser = (await import("webextension-polyfill")).default;
-    const send = browser.runtime.sendMessage as any;
+    const send = vi.mocked(browser.runtime.sendMessage);
     send.mockClear();
     const customShortcut = "Ctrl+Alt+Shift+S";
     const e = mkKey({ key: "s", ctrlKey: true, altKey: true, shiftKey: true, targetTag: "INPUT" });
-    const str = eventToString(e as any);
+    const str = eventToString(e as unknown as KeyboardEvent);
     const isInput = e.target && ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
     let triggered = false;
     if (!e.repeat && !isInput) {
