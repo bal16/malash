@@ -1,7 +1,5 @@
 # .malash
 
-web extension for autoscrolling
-
 [![SolidJS](https://img.shields.io/badge/SolidJS-1.9.13-4B7BEC?style=for-the-badge&logo=solid&logoColor=white)](https://www.solidjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-8.1-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -37,7 +35,7 @@ Ensure you have Node.js and pnpm or npm installed.
 1. Clone this repository:
 
    ```bash
-   git clone [https://github.com/username/malash.git](https://github.com/username/malash.git)
+   git clone https://github.com/bal16/malash.git
    cd malash
    ```
 
