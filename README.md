@@ -34,24 +34,24 @@ Ensure you have Node.js and pnpm or npm installed.
 
 1. Clone this repository:
 
-   ```bash
-   git clone https://github.com/bal16/malash.git
-   cd malash
-   ```
+```bash
+git clone https://github.com/bal16/malash.git
+cd malash
+```
 
-2. Install dependencies:
+1. Install dependencies:
 
-   ```Bash
-   pnpm install //or npm install
-   ```
+```Bash
+pnpm install //or npm install
+```
 
 ### Development & Build Scripts
 
 - Development Server:
 
-  ```Bash
-  pnpm run dev
-  ```
+```Bash
+pnpm run dev
+```
 
 - Build Extension:
 
@@ -73,10 +73,25 @@ pnpm run test
 
 ### Loading the Extension in Browser
 
-1. Run bun run build.
-2. Open your browser's extension management page:
-   Chrome/Brave/Edge: Go to chrome://extensions/ and enable Developer mode.
-   Firefox: Go to about:debugging#/runtime/this-firefox.
+#### Option A: From Source (Development / Unpacked)
 
-3. Click Load unpacked (or Load Temporary Add-on) and select the generated dist folder.
-4. Or download signed from [release page](https://github.com/bal16/malash/releases)
+1. Build the project:
+
+```bash
+  bun run build
+```
+
+1. Open your browser's extension management page:
+   Chrome / Brave / Edge: Copy & paste <chrome://extensions> in your address bar, then enable Developer mode (top-right toggle).
+   Firefox: Open <about:debugging#/runtime/this-firefox> in your address bar.
+1. Load the extension:
+   Chrome / Brave / Edge: Click Load unpacked and select the generated dist (or out) folder.
+   Firefox: Click Load Temporary Add-on... and select manifest.json from the dist folder.
+
+### Option B: From GitHub Releases (Pre-built Assets)
+
+Download the latest pre-built package from the [Release Page](https://github.com/bal16/malash/releases):
+
+1. Chrome / Chromium: Drag and drop the .crx file onto chrome://extensions (with Developer mode turned ON).
+1. Firefox: Go to about:addons, click the gear icon (⚙️), select Install Add-on From File..., and choose the .xpi file.
+1. Manual Extract: Download the .zip file, extract it, and follow Option A to load it as an unpacked extension.
